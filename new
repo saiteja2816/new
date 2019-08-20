@@ -1,0 +1,115 @@
+import { Component, OnInit } from '@angular/core';
+import { merchant } from './merchant';
+import { MerchantService } from './merchant-service.service';
+import { invitation } from './invitation';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnInit{
+
+  userform : FormGroup = new FormGroup({
+    
+    mname  : new FormControl("",[Validators.required]),
+    mmobile  : new FormControl("",[Validators.required])
+  });
+
+
+
+ merchant1 : merchant;
+ invitation1 : invitation;
+constructor(private merchantService:MerchantService) 
+{  this.merchant1 =new merchant();
+  this.invitation1 =new invitation();
+}
+   
+  ngOnInit() {
+    this.userform =  new FormGroup({
+      mname  : new FormControl("",[Validators.required]),
+    mmobile  : new FormControl("",[Validators.required])
+    });
+  }
+
+  addMerchant(data):void {console.log(data)
+    this.merchant1.mname=data.mname;
+    this.merchant1.mmobile=data.mmobile;
+    this.merchant1.mmail=data.mmail;
+    this.merchant1.maddress=data.maddress;
+    console.log(this.merchant1);
+    this.merchantService.addMerchants(this.merchant1).subscribe(data => {
+      
+        alert("merchant added successfully.");
+      
+      });
+}
+.........................................................................................
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { merchant } from './merchant';
+import { invitation } from './invitation';
+@Injectable({
+  providedIn: 'root'
+})
+export class MerchantService {
+
+ constructor(private httpClient:HttpClient) { }
+
+ public addMerchants(merchant1) {
+  return this.httpClient.post<merchant>("http://localhost:8050/AddMerchant", merchant1)
+  }
+
+  public sendInvitation(invitation) {console.log(invitation);
+    return this.httpClient.post<invitation>("http://localhost:8090/sentInvitation", invitation)
+    }
+}
+.....................................................................................
+import { TestBed } from '@angular/core/testing';
+
+import { MerchantService } from './merchant-service.service';
+
+describe('MerchantService', () => {
+  beforeEach(() => TestBed.configureTestingModule({}));
+
+  it('should be created', () => {
+    const service: MerchantService = TestBed.get(MerchantService);
+    expect(service).toBeTruthy();
+  });
+});
+..............................................................................................
+import { TestBed, async } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AppComponent } from './app.component';
+
+describe('AppComponent', () => {
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      imports: [
+        RouterTestingModule
+      ],
+      declarations: [
+        AppComponent
+      ],
+    }).compileComponents();
+  }));
+
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.debugElement.componentInstance;
+    expect(app).toBeTruthy();
+  });
+
+  it(`should have as title 'add-merchant'`, () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.debugElement.componentInstance;
+    expect(app.title).toEqual('add-merchant');
+  });
+
+  it('should render title in a h1 tag', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.debugElement.nativeElement;
+    expect(compiled.querySelector('h1').textContent).toContain('Welcome to add-merchant!');
+  });
+});
